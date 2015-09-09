@@ -1,0 +1,60 @@
+<style>
+	#nav{
+		width:3000px;
+	}
+	#button{
+		display:block;
+		margin-top:15px;
+	}
+	div{
+		margin:15px;
+	}
+	th,td{
+		padding:15px;
+		border:1px solid black;
+	}
+	input{
+		margin-left:10px;
+	}
+</style>
+<div ng-controller="ProductsController">
+	<div id="nav">
+		<input type="text" placeholder="search products" ng-model="filter_products">
+		<h1>Add a new product</h1>
+		<form>
+			Name: <input type="text" ng-model="new_product.name" placeholder="name...">
+			Image (url): <input type="text" ng-model="new_product.image" placeholder="http://">
+			Description: <input type="text" ng-model="new_product.description">
+			Initial Quantity:
+						<select ng-model="new_product.quantity" id="quantity" name="quantity">
+												<option>1</option>
+												<option>2</option>
+												<option>3</option>
+												<option>4</option>
+												<option>5</option>
+						</select>
+			<input ng-click="addProduct()" id="button" type="submit" value="Create">
+		</form>
+	</div>
+	<div id="main">
+		<table>
+			<thead>
+				<th>Product Name</th>
+				<th>Image</th>
+				<th>Description</th>
+				<th>Quantity</th>
+			</thead>
+			<tbody>
+				<tr ng-repeat="product in products | filter: filter_products">
+					<td>{{product.name}}</td>
+					<td>{{product.image}}</td>
+					<td>{{product.description}}</td>
+					<td>{{product.quantity}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+
+

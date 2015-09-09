@@ -1,0 +1,186 @@
+<html ng-app="friends_app">
+<head>
+  <title></title>
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <link href="https://bootswatch.com/sandstone/bootstrap.min.css" rel="stylesheet" media="screen">
+  <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">CodingDojo</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="#/customers">Customers</a></li>
+        <li><a href="#/orders">Orders</a></li>
+        <li><a href="#/products">Products</a></li>
+        <li><a href="#/dashboard">Dashboard</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+  <!-- require angular -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+  <script>
+  // Lets create our angular module
+    var friends_app = angular.module('friends_app', ['ngRoute']);
+
+    friends_app.config(function ($routeProvider) {
+      $routeProvider
+        .when('/',{
+            templateUrl: 'partials/customers.html'
+        })
+        .when('/orders',{
+            templateUrl: 'partials/orders.html'
+        })
+        .when('/dashboard',{
+          templateUrl: 'partials/dashboard.html'
+        })
+        .when('/products',{
+          templateUrl: 'partials/products.html'
+        })
+        .otherwise({
+          redirectTo: '/'
+        });
+    });
+
+    // create the FriendFactory
+    friends_app.factory('FriendFactory', function($http) {
+        var factory = {};
+        var friends = [];
+        factory.getFriends = function(callback) {
+          $http.get('/friends').success(function(output){
+            friends = output;
+            callback(friends);
+          })
+        }
+        // note the use of callbacks!
+        factory.addFriend = function(info, callback) {
+          $http.post('/addfriend', info);
+          callback(friends);
+        }
+        factory.remove = function(friend, callback){
+          $http.post("/remove/"+friend._id).success(function(){
+            callback();
+          })
+        }
+        return factory;
+      });
+      friends_app.factory('ProductsFactory', function($http){
+        var factory = {};
+        var products = [];
+
+        factory.addProduct = function(info, callback){
+          $http.post('/addproduct', info);
+          callback(products);
+        }
+        factory.getProduct = function(callback){
+          $http.get('/products').success(function(output){
+            products = output;
+            callback(products);
+          })
+        }
+        return factory;
+      })
+      friends_app.factory('OrdersFactory', function($http){
+        var factory = {};
+        var orders = [];
+
+        factory.addOrder = function(info, callback){
+          $http.post('/addorder', info);
+          callback(orders);
+        }
+        factory.getOrder = function(callback){
+          $http.get('/orders').success(function(output){
+            orders = output;
+            callback(orders);
+          })
+        }
+        factory.removeorder = function(order, callback){
+          $http.post("/removeorder/"+order._id).success(function(){
+            callback();
+          })
+        }
+        return factory;
+      });
+
+    friends_app.controller('FriendsController', function($scope, FriendFactory) {
+      FriendFactory.getFriends(function(data){
+        $scope.friends = data;
+      })
+
+      $scope.addfriend = function() {
+        console.log($scope.new_friend);
+        FriendFactory.addFriend($scope.new_friend, function(){
+        FriendFactory.getFriends(function(data){
+          $scope.friends = data;
+        })
+          $scope.new_friend = {};
+        });
+      }
+      $scope.removeCustomer = function(friend){ 
+        FriendFactory.remove(friend, function(){
+          FriendFactory.getFriends(function(data){
+        $scope.friends = data;
+      })
+        });
+      }
+  });
+    friends_app.controller('ProductsController', function($scope, ProductsFactory){
+      ProductsFactory.getProduct(function(data){
+        $scope.products = data;
+      })
+
+      $scope.addProduct = function(){
+        ProductsFactory.addProduct($scope.new_product, function(){
+          ProductsFactory.getProduct(function(data){
+            $scope.products = data;
+          })
+          $scope.new_product = {};
+        })
+      }
+    })
+    friends_app.controller('OrdersController', function($scope, OrdersFactory, FriendFactory, ProductsFactory){
+        ProductsFactory.getProduct(function(data){
+          $scope.products = data;
+          console.log($scope.products);
+        })
+        OrdersFactory.getOrder(function(data){
+          $scope.orders = data;
+        })
+        FriendFactory.getFriends(function(data){
+          $scope.friends = data;
+        })
+        $scope.addOrder = function(){
+          OrdersFactory.addOrder($scope.new_order, function(){
+            OrdersFactory.getOrder(function(data){
+              $scope.orders = data;
+            })
+        $scope.new_order = {};
+          })
+        }
+        $scope.removeorder = function(order){
+          OrdersFactory.removeorder(order, function(data){
+            OrdersFactory.getOrder(function(data){
+              $scope.orders = data;
+            })
+          })
+        }
+      })
+  </script>
+
+<!-- everything in the body is going to use the friends controller (this gives us access to the friends controller $scope) -->
+
+  <div ng-view="">
+  </div>
+
+
+

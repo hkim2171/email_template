@@ -1,0 +1,32 @@
+<style type="text/css">
+  div{
+    margin:15px;
+  }
+  table{
+    margin-top:15px;
+  }
+  th,td{
+    padding:15px;
+    border:1px solid black;
+  }
+</style>
+<div ng-controller="FriendsController">
+  {{filter_name}}
+  <h1>Add a new customer</h1>
+  <!-- objects and properties nothing scary -->
+  Customer Name: <input type="text" ng-model="new_friend.name" placeholder="name">
+  <!-- addfriend() is a method we are going to make in the angular controller -->
+  <input type="submit" ng-click="addfriend()" value="Add">
+
+  <table>
+    <tr>
+      <th>Customer Name</th>
+      <th>Actions</th>
+    </tr>
+    <tr ng-repeat="friend in friends | filter: filter_name">
+      <td>{{friend.name}}</td>
+      <td><button ng-click="removeCustomer(friend)">remove</button></td>
+    </tr>
+  </table>
+</div>
+
